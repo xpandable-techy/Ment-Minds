@@ -1,0 +1,6 @@
+{
+  "name": "MENTMINDS Youth Mentorship & Advocacy",
+  "description": "Youth mentorship, advocacy, and educational non-profit platform for MENTMINDS (RC8946867).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

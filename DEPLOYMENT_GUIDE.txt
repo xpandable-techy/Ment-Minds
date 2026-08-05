@@ -1,0 +1,440 @@
+================================================================================
+MENTMINDS PLATFORM — PRODUCTION DEPLOYMENT GUIDE
+================================================================================
+RC8946867 · Youth Mentorship & Child Advocacy Platform
+
+This guide takes you from this folder to a live, working site with real
+sign-ups, real email confirmation, real password reset, and real photo
+uploads. Follow it in order — each part depends on the one before it.
+
+Stack: React + Vite + TypeScript + Tailwind, backed by Supabase
+(Postgres database + Auth + Storage), deployed on Vercel.
+
+
+================================================================================
+PART 1 — PUSH THE CODE TO GITHUB
+================================================================================
+
+1. Create a new, empty repository on GitHub (do NOT initialize it with a
+   README — you already have one).
+
+2. From inside this project folder:
+
+     git init
+     git add .
+     git commit -m "Initial commit — MentMinds platform"
+     git branch -M main
+     git remote add origin https://github.com/<your-username>/<your-repo>.git
+     git push -u origin main
+
+   Note: .gitignore is already set up to keep node_modules/, dist/, and any
+   real .env file out of GitHub. Only .env.example (which has no real
+   secrets) gets committed — that's intentional and safe.
+
+
+================================================================================
+PART 2 — CREATE YOUR SUPABASE PROJECT
+================================================================================
+
+1. Go to https://supabase.com and sign in (or create a free account).
+
+2. Click "New Project".
+     - Name: mentminds (or anything you like)
+     - Database password: generate a strong one and SAVE IT somewhere safe
+       (you won't need it day-to-day, but you'll want it if you ever need
+       to connect a database client directly).
+     - Region: pick the one closest to your users (e.g. an EU or US region
+       close to Nigeria has the best latency options currently offered).
+   Wait ~2 minutes for the project to finish provisioning.
+
+3. Run the database schema:
+     - In the left sidebar, click the "SQL Editor" icon.
+     - Click "New query".
+     - Open schema.sql from this project folder, copy its ENTIRE contents,
+       and paste into the SQL editor.
+     - Click "Run".
+   This creates every table (profiles, mentor_requests, sessions, flyers,
+   news_articles, newsletters, registered_emails), all Row Level Security
+   policies, the auto-profile-creation trigger, AND the "avatars" storage
+   bucket with its upload policies — all in one script.
+
+   If you ever change schema.sql later, you can safely re-run it: every
+   statement uses CREATE TABLE IF NOT EXISTS / DROP POLICY IF EXISTS /
+   CREATE OR REPLACE, so re-running it won't duplicate anything.
+
+4. Get your API keys:
+     - Sidebar -> Project Settings -> API.
+     - Copy the "Project URL" and the "anon public" key. You'll need both
+       in Part 4. Never use the "service_role" key in this frontend project
+       — that key bypasses all security and must never reach the browser.
+
+
+================================================================================
+PART 3 — CONFIGURE SUPABASE AUTH (email confirmation + password reset)
+================================================================================
+
+1. Sidebar -> Authentication -> Providers -> Email.
+     - Make sure "Enable Email provider" is ON.
+     - "Confirm email" — decide here whether new users must click a
+       confirmation link before they can sign in:
+         ON  (recommended, default): more secure, matches what the app's
+             "check your email" screen expects.
+         OFF: people are signed in immediately after signup (simpler demo
+             experience, but anyone can sign up with an email they don't
+             own).
+
+2. Sidebar -> Authentication -> URL Configuration.
+     - Site URL: set this to your real production URL once you have it from
+       Vercel in Part 5 (e.g. https://mentminds.vercel.app or your custom
+       domain). You can update this later — just remember to come back.
+     - Redirect URLs: add the same URL here too. This is where Supabase
+       sends people after they click a confirmation or password-reset link.
+     While developing locally, also add http://localhost:3000 to both
+     fields so links work on your machine before you deploy.
+
+3. Email templates (optional but recommended for a professional look):
+     - Sidebar -> Authentication -> Email Templates.
+     - You can customize the "Confirm signup" and "Reset password" emails
+       here — subject line, wording, and a bit of styling. Supabase's
+       defaults work out of the box; this step is just polish.
+
+4. Pre-registering mentor/admin accounts:
+     schema.sql already inserts a starter list of mentor emails into the
+     registered_emails table. Anyone who signs up with one of those emails
+     automatically gets role = 'mentor' instead of 'mentee'.
+     To make yourself an admin, run this in the SQL Editor BEFORE you sign
+     up with that email:
+
+       INSERT INTO public.registered_emails (email, role, notes)
+       VALUES ('your-email@example.com', 'admin', 'Founder account')
+       ON CONFLICT (email) DO UPDATE SET role = 'admin';
+
+     Then sign up normally on the site with that exact email address — the
+     database trigger reads this table automatically and assigns the role.
+     (If you already signed up before adding yourself here, just run:
+       UPDATE public.profiles SET role = 'admin' WHERE email = 'your-email@example.com';)
+
+5. Making sure confirmation and reset emails actually arrive:
+     Supabase's built-in email sender works out of the box for testing, but
+     it is rate-limited (a small number of emails per hour) and mail
+     providers often flag it as lower-trust, so real signups can land in
+     spam or simply not arrive once you have real traffic. Two things to
+     do before a public launch:
+
+       a) Check spam/junk first if a test email doesn't show up within a
+          minute or two — this is the single most common "it's not
+          working" cause during testing.
+
+       b) Connect a real SMTP provider for production: Sidebar ->
+          Project Settings -> Authentication -> SMTP Settings -> enable
+          "Custom SMTP", then fill in credentials from a transactional
+          email service such as Resend, SendGrid, Mailgun, Postmark, or
+          Brevo (all have free tiers big enough for a launch). This
+          removes Supabase's rate limit and dramatically improves
+          deliverability and sender reputation for mentee/mentor sign-ups.
+
+     Either way, always test the full loop yourself on the live site
+     before announcing a launch: sign up with a real inbox you can check,
+     confirm you receive both the confirmation email and (separately) a
+     password-reset email, and that both links land back on the site
+     correctly.
+
+
+================================================================================
+PART 4 — ENVIRONMENT VARIABLES
+================================================================================
+
+The app only needs two environment variables — both are safe to expose in
+the browser (the anon key is designed for that; real protection comes from
+the Row Level Security policies in schema.sql, not from hiding this key).
+
+  VITE_SUPABASE_URL       -> the "Project URL" from Part 2, step 4
+  VITE_SUPABASE_ANON_KEY  -> the "anon public" key from Part 2, step 4
+
+Local development:
+  cp .env.example .env
+  Then paste your real values into .env (this file is gitignored — it
+  will never be committed).
+
+Production (Vercel) — see Part 5, step 3 below.
+
+
+================================================================================
+PART 5 — DEPLOY TO VERCEL
+================================================================================
+
+1. Go to https://vercel.com and sign in with your GitHub account.
+
+2. Click "Add New" -> "Project", then import the GitHub repository you
+   pushed in Part 1. Vercel auto-detects Vite — the defaults it suggests
+   (Build Command: vite build, Output Directory: dist) are correct, no
+   changes needed.
+
+3. Before clicking Deploy, expand "Environment Variables" and add:
+     VITE_SUPABASE_URL      = <your Supabase Project URL>
+     VITE_SUPABASE_ANON_KEY = <your Supabase anon public key>
+   Add both for all three environments (Production, Preview, Development)
+   so they're available regardless of how you trigger a deploy.
+
+4. Click "Deploy". After it finishes, Vercel gives you a live URL like
+   https://mentminds.vercel.app.
+
+5. Go back to Supabase (Part 3, step 2) and update the Site URL and
+   Redirect URLs to this real Vercel URL. This step matters — without it,
+   confirmation and password-reset email links will send people to the
+   wrong place.
+
+6. (Optional) Buy and connect a custom domain:
+     - Vercel: Project -> Settings -> Domains -> add your domain, follow
+       the DNS instructions it gives you.
+     - Once that's live, repeat step 5 with your custom domain instead of
+       the vercel.app one.
+
+
+================================================================================
+PART 6 — VERIFY EVERYTHING WORKS END TO END
+================================================================================
+
+Do this on the live Vercel URL, not just locally:
+
+  [ ] Sign up with a real email you can check. If email confirmation is
+      ON, you should land on a "check your email" screen — open the email,
+      click the link, then come back and sign in.
+  [ ] Sign in with that account and confirm you land on the right
+      dashboard (mentee by default, or mentor/admin if you pre-registered
+      that email per Part 3, step 4).
+  [ ] Upload a profile photo — open Supabase -> Storage -> avatars bucket
+      and confirm the file appears there, and that the image shows up in
+      the app.
+  [ ] Click "Forgot password" on the sign-in screen, follow the email link,
+      and set a new password.
+  [ ] As a mentee, request a mentor. As the admin, approve it in the Admin
+      dashboard. As that mentor (a second browser or incognito window,
+      signed in with the mentor's account), confirm the request now shows
+      up waiting for approval, and approve it.
+  [ ] As admin, post a newsletter item and confirm it appears on the
+      public home page for a signed-out visitor.
+
+If any of these don't work, the first place to check is your browser's
+developer console (F12 -> Console) for a Supabase error message — it
+almost always names the exact table or policy involved.
+
+
+================================================================================
+RECENT PLATFORM CHANGES
+================================================================================
+
+- Profile photos are now reliable end to end: whatever a person uploads
+  during sign up is what shows up everywhere else in the app (top-right
+  header next to sign out, mentor cards, onboarding): a few spots were
+  previously falling back to a stand-in stock photo of a stranger instead
+  of a neutral placeholder when a photo hadn't synced yet; that's fixed.
+  A compressed copy of the photo is also carried through the sign-up
+  process itself, so it's attached to the account immediately even when
+  "Confirm email" is switched on and there's no active session yet to
+  otherwise authenticate the upload.
+
+- The sign-in/sign-up page's brand panel is blue (MentMinds' primary
+  color) instead of green, with gold and rose used for the stat icons.
+
+- A small eye icon next to the sign-out button (visible whether or not
+  someone is signed in) toggles "eye comfort mode": a soft, warm dimming
+  filter across the whole app. It's a filter, not a separate dark theme:
+  every screen keeps its real colors, just gentler on the eyes. The choice
+  persists in the browser across visits.
+
+- The Team section has been removed from the home page for now (and its
+  nav links), and the Featured Mentors section now shows exactly 4
+  mentors at a time, automatically rotating to the next 4 each week
+  (the same four for every visitor during a given week).
+
+- All home page flyer and news images are now wired to local flyer images
+  under public/flyers/ (Anti-Bullying Task Force, Over 600 Mentees, Rescued
+  Out-of-School Children, Dr. Bashir & Dr. Zainab Farouk).
+
+- Category filter tabs under Almajiri & Youth Empowerment Showcase now
+  use FontAwesome icons (fa-fa) instead of emojis.
+
+- FIXED — a real bug where admin access silently reverted itself: the app
+  used to re-check every signed-in person's email against the
+  registered_emails table on every login and, if that table listed a
+  different role than the one on their profiles row, it would quietly
+  overwrite profiles.role back to the older value. So promoting someone to
+  admin (whether by editing the profiles table directly, or by any other
+  means) could get silently undone the next time they signed in, with no
+  error shown. registered_emails now only ever sets the role a person
+  starts with at signup; nothing overrides profiles.role after that. If
+  you promoted an account before this fix, sign out and back in (or just
+  reload) — it should stick now. If it still doesn't, check the SQL below.
+
+- Mentor accounts are now created through a real, secure invite flow
+  instead of a form that only wrote to this browser's local storage (see
+  "INVITING MENTORS" below) — the old "Register New Mentor" form looked
+  like it worked but never created an account the mentor could actually
+  sign in with.
+
+
+================================================================================
+FIXED — "infinite recursion detected in policy for relation profiles"
+================================================================================
+
+If your browser console showed 500 errors on every request to profiles,
+mentor_requests, sessions, flyers, or news_articles, with a message like
+"infinite recursion detected in policy for relation 'profiles'", this was
+a bug in schema.sql's admin-access policies: the policy that grants
+admins full access to profiles checked the caller's role by querying
+profiles from within a policy ON profiles — which means checking the
+policy requires re-running the same policy, forever. Postgres detects
+this and every request touching profiles fails, which cascades to every
+other table whose own admin policy also checks profiles.
+
+This is fixed in the current schema.sql (a SECURITY DEFINER helper
+function now does that check safely, outside of RLS). To apply the fix
+to a Supabase project set up before this fix:
+
+1. Open Supabase -> SQL Editor -> New query.
+2. Paste the full contents of schema.sql (or the newer version shown in
+   Admin -> Supabase Setup in the app) and run it. It's safe to re-run —
+   every statement uses CREATE OR REPLACE / DROP POLICY IF EXISTS, so
+   this won't duplicate anything, it just replaces the broken policies.
+3. Reload the site. The 500 errors should be gone immediately — no code
+   deploy needed for this part, since it's purely a database change.
+
+
+================================================================================
+PROMOTING AN ACCOUNT TO ADMIN
+================================================================================
+
+Run this in the Supabase SQL Editor, replacing the email(s) with the real
+ones. This is safe to re-run any time and works whether the account exists
+yet or not (it will apply as soon as the person signs up if they haven't
+yet):
+
+```sql
+INSERT INTO public.registered_emails (email, role, notes) VALUES
+('someone@example.com', 'admin', 'Executive / Super Admin')
+ON CONFLICT (email) DO UPDATE SET role = 'admin';
+
+UPDATE public.profiles
+SET role = 'admin'
+WHERE LOWER(email) = 'someone@example.com';
+```
+
+The first statement (registered_emails) only matters for accounts that
+haven't signed up yet — it decides their role at signup time. The second
+statement (profiles) is what actually matters for an existing account, and
+takes effect the next time that person signs in or reloads the page.
+
+
+================================================================================
+INVITING MENTORS (real accounts, not just a form)
+================================================================================
+
+The Admin dashboard's "Invite a New Mentor" button now creates a real
+Supabase account and emails the mentor a secure link to set their own
+password — nobody, including admins, ever sees or sets a mentor's
+password. That isn't a MentMinds limitation; Supabase Auth (like any real
+auth system) hashes every password and never makes it retrievable to
+anyone, by design. A form that lets an admin "type in" a mentor's password
+cannot create a real, working login — it can only save that password
+somewhere in your own database, which is both insecure and not how
+Supabase accounts work.
+
+This is powered by a Supabase Edge Function, because creating a real
+account requires Supabase's service_role key — a secret that must never
+be shipped in the website's code (anyone could extract it from the
+browser and get full, unrestricted database access). The Edge Function
+runs on Supabase's servers instead, where that key is safe.
+
+What the mentor experiences: clicking the invite link signs them in
+automatically and takes them straight to a "Complete your mentor
+profile" screen — not a sign-in form, and not straight to the dashboard.
+There they set their own password, upload a profile photo (required),
+and confirm their WhatsApp number and areas of expertise (pre-filled
+from what the admin entered, editable). Only after that do they land on
+the Mentor dashboard. From then on they sign in normally with the
+password they set.
+
+To deploy it:
+
+1. Install the Supabase CLI (one-time):
+     npm install -g supabase
+
+2. From this project folder, log in and link it to your project:
+     supabase login
+     supabase link --project-ref YOUR-PROJECT-REF
+   (Find YOUR-PROJECT-REF in the Supabase dashboard URL, or under
+   Project Settings -> General -> Reference ID.)
+
+3. Deploy the function:
+     supabase functions deploy invite-mentor
+
+   That's it — SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided
+   automatically to every Edge Function by Supabase, nothing to
+   configure. Optionally set SITE_URL so the invite email link points at
+   your live domain instead of Supabase's default:
+     supabase secrets set SITE_URL=https://your-domain.com
+
+4. Test it: sign in as an admin on the live site, open "Invite a New
+   Mentor", fill it in, and send. Check that:
+     - The mentor receives an email with an invite link.
+     - Clicking it signs them in automatically and lands them on a
+       "Complete your mentor profile" screen (not the dashboard, and not
+       a sign-in form) where they must set their own password, add a
+       profile photo, and confirm their WhatsApp number and areas of
+       expertise before continuing.
+     - Only after submitting that screen do they reach the Mentor
+       dashboard, and can sign in normally from then on with the
+       password they just set.
+     - Supabase -> Authentication -> Users shows the new account.
+
+If the invite fails with a permissions error, double check the signed-in
+account's profiles.role is actually 'admin' (see the section above) — the
+function rejects the request otherwise.
+
+
+================================================================================
+PARTNER LOGO IMAGES TO ADD TO PUBLIC DIRECTORY
+================================================================================
+
+The home page Partners section features your 5 official partners.
+Below is the directory map for partner logos:
+
+┌───────────────────────────┬────────────────────────────────────────┬────────────────────────────────────────┐
+│ Partner Name              │ Image Filename                         │ Target Directory Path                  │
+├───────────────────────────┼────────────────────────────────────────┼────────────────────────────────────────┤
+│ MIHAMS                    │ MIHAMS logo--Partner.jpg               │ public/outreach/ [FOUND & WIRED ✓]     │
+│ the ITHAC                 │ the_ithac_logo.png                     │ public/outreach/the_ithac_logo.png     │
+│ ITHAC Foundation          │ ithac_foundation_logo.png              │ public/outreach/ithac_foundation_logo.png│
+│ Bannuu Allied Partners    │ bannuu_allied_partners_logo.png        │ public/outreach/bannuu_allied_partners_logo.png│
+│ Xpandable Technologies    │ xpandable_technologies_logo.png        │ public/outreach/xpandable_technologies_logo.png│
+└───────────────────────────┴────────────────────────────────────────┴────────────────────────────────────────┘
+
+Instructions:
+To display the remaining 4 partner logo images on the live home page,
+place your image files inside public/outreach/ using the exact filenames listed above.
+Until you add the image files, the platform gracefully displays each partner's
+name, category label, and icon inside a clean card.
+
+================================================================================
+KNOWN LIMITATIONS / GOOD NEXT STEPS
+================================================================================
+
+- The sample mentors seeded in src/data/mockData.ts are placeholder/demo
+  data, not real accounts. Before a real public launch, either remove them
+  or replace them with your actual 160+ mentors (either by having each one
+  sign up, or by writing a one-time SQL import into the profiles table).
+
+- Data currently refreshes when a page loads or right after an action:
+  it is not "live" in the sense of updating instantly on someone else's
+  screen without a refresh. For a future upgrade, Supabase's Realtime
+  feature (supabase.channel(...).on('postgres_changes', ...)) can push
+  live updates to open dashboards without a refresh: worth adding once
+  the core flows have been used for a while and you know which screens
+  need it most.
+
+- The current bundle is a single JS file (~654 KB, ~174 KB gzipped). It
+  works fine, but if the app keeps growing, splitting it with dynamic
+  import() for the admin dashboard (which most visitors never load) is an
+  easy win for first-load speed.
+================================================================================

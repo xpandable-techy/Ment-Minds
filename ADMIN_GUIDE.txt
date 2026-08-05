@@ -1,0 +1,145 @@
+================================================================================
+MENTMINDS — ADMIN DASHBOARD ACCESS GUIDE
+================================================================================
+This is a focused guide just for getting into and using the Admin
+dashboard. For full setup/deployment (Supabase, Vercel, env vars), see
+DEPLOYMENT_GUIDE.txt in this same folder.
+
+
+================================================================================
+1. HOW TO BECOME AN ADMIN
+================================================================================
+
+There is no "admin sign-up" — an admin account is a normal MentMinds
+account whose role has been set to 'admin' in the database. Nobody can
+give themselves this role from the website; it has to be set directly in
+Supabase.
+
+Step 1 — Sign up normally on the live site with the email you want to use
+as admin (Login -> Create account), the same way any mentee would. If
+you've already done this, skip to Step 2.
+
+Step 2 — In Supabase -> SQL Editor -> New query, run this with your real
+email:
+
+    UPDATE public.profiles
+    SET role = 'admin'
+    WHERE LOWER(email) = 'your-email@example.com';
+
+Step 3 — On the live site, sign out completely and sign back in (a plain
+page refresh isn't enough — the app only re-reads your role from the
+database on sign-in). You should now land on the Admin dashboard
+automatically after login.
+
+To promote someone who hasn't signed up yet, you can also pre-register
+their email so the role is applied the moment they do sign up:
+
+    INSERT INTO public.registered_emails (email, role, notes)
+    VALUES ('their-email@example.com', 'admin', 'Reason / who this is')
+    ON CONFLICT (email) DO UPDATE SET role = 'admin';
+
+(This only affects the role assigned at signup time — if their account
+already exists, use the UPDATE profiles statement above instead.)
+
+
+================================================================================
+2. SIGNING IN
+================================================================================
+
+Admins use the exact same sign-in screen as everyone else — there is no
+separate admin login page or URL. Go to the site, click Login, sign in
+with your email and password. Which dashboard you land on (mentee,
+mentor, or admin) is decided entirely by the role on your account in the
+database, not by anything you choose at login.
+
+If you land on the wrong dashboard after promoting an account, see
+Section 4 below.
+
+
+================================================================================
+3. WHAT THE ADMIN DASHBOARD CAN DO
+================================================================================
+
+- Review and approve/reject mentee -> mentor match requests.
+- Invite new mentors by email (Section 5 below) — this is the only way
+  mentor accounts get created by an admin; there is no way to "add" a
+  mentor without them going through account setup themselves.
+- Publish newsletter items that appear on the public home page.
+- Manage flyers and news articles shown on the site.
+- View every registered profile (mentees and mentors).
+
+Admin status is checked on every request by the database itself (Row
+Level Security), not just by which screen the app shows you — so even if
+someone tried to bypass the UI, actions restricted to admins are refused
+by Supabase directly for non-admin accounts.
+
+
+================================================================================
+4. TROUBLESHOOTING
+================================================================================
+
+"I set role = 'admin' but I still see the mentee/mentor dashboard"
+  - Did you sign out and back in (not just refresh)? Required — see
+    Step 3 above.
+  - Double-check the UPDATE actually matched a row: run
+      SELECT email, role FROM public.profiles WHERE LOWER(email) = 'your-email@example.com';
+    and confirm it shows role = admin. If it returns no rows, the email
+    doesn't match exactly (check for typos, or that you signed up with
+    that exact address).
+
+"Every request is failing with a 500 error, or the console shows
+'infinite recursion detected in policy for relation profiles'"
+  - This was a bug in an older version of schema.sql (a security policy
+    that accidentally checked itself in a loop). Re-run the current
+    schema.sql in the Supabase SQL Editor — it's safe to re-run and will
+    just replace the broken policies. Full details in
+    DEPLOYMENT_GUIDE.txt under "FIXED — infinite recursion...".
+
+"I can sign in but nothing loads / blank dashboard"
+  - Open the browser console (F12) and check for errors. Most often this
+    is either the RLS recursion issue above, or the two environment
+    variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY) not being set
+    correctly in Vercel's project settings.
+
+"Sign-in says 'email not confirmed'"
+  - Your Supabase project has email confirmation required, and this
+    account hasn't clicked its confirmation email yet. Check spam, or
+    disable "Confirm email" in Supabase -> Authentication -> Providers ->
+    Email if you'd rather skip that step.
+
+
+================================================================================
+5. INVITING MENTORS (as an admin)
+================================================================================
+
+From the Admin dashboard, "Invite a New Mentor" sends a real invite —
+nobody, including you as admin, ever sees or sets a mentor's password.
+Fill in their name, email, phone, and bio, and send. They'll get an
+email; clicking it takes them straight to a screen where they set their
+own password and finish their profile (required photo, confirm their
+interests) before reaching the Mentor dashboard.
+
+This requires a small Supabase Edge Function to be deployed once — if
+"Invite a New Mentor" fails, this is the first thing to check. Full
+deploy steps (three commands) are in DEPLOYMENT_GUIDE.txt under
+"INVITING MENTORS".
+
+
+================================================================================
+A NOTE ON WHAT'S REAL NOW
+================================================================================
+
+As of this update, every placeholder/demo mentor, admin, and team member
+that used to appear on the site has been removed from the code. The
+mentors shown on the public home page, and every account in Mentee /
+Mentor / Admin dashboards, now come only from real Supabase accounts —
+people who actually signed up or were invited. If the home page shows
+"No Registered Mentors Yet," that's accurate, not a bug: it means no real
+mentor account exists yet. Invite one (Section 5) or have a real mentor
+sign up to populate it.
+
+The webinar flyers and news/impact articles on the home page are real
+MentMinds content (not test data) and were left as-is — those are
+managed through the Admin dashboard's newsletter/flyer/news tools going
+forward.
+================================================================================
