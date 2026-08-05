@@ -119,7 +119,7 @@ export const CompleteMentorProfilePage: React.FC<CompleteMentorProfilePageProps>
 
   return (
     <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
-      <div className="min-h-screen grid lg:grid-cols-[42%_58%]">
+      <div className="min-h-screen grid lg:grid-cols-[42%_58%] animate-fadeIn">
         {/* BRAND PANEL */}
         <div className="relative bg-[#0B6291] text-white px-6 sm:px-10 py-8 lg:py-12 flex flex-col overflow-hidden">
           <div className="circles-wrapper opacity-30" aria-hidden="true">
@@ -191,7 +191,7 @@ export const CompleteMentorProfilePage: React.FC<CompleteMentorProfilePageProps>
                 <span className="text-xs font-semibold text-slate-500 mb-1.5 block uppercase tracking-wide">Profile photo (required)</span>
                 <div className="flex items-center gap-4">
                   <div className={`w-16 h-16 rounded-full overflow-hidden border-2 flex items-center justify-center shrink-0 ${avatarPreview ? 'border-[#0B6291]' : 'border-dashed border-slate-300 bg-slate-50'}`}>
-                    {avatarPreview ? <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" /> : <Camera className="w-5 h-5 text-slate-400" />}
+                    {avatarPreview ? <img loading="lazy" src={avatarPreview} alt="Profile" className="w-full h-full object-cover" /> : <Camera className="w-5 h-5 text-slate-400" />}
                   </div>
                   <label className="cursor-pointer bg-white border border-slate-300 hover:border-[#0B6291] text-[#0C1836] font-medium text-xs px-3.5 py-2.5 rounded-lg flex items-center gap-1.5">
                     <Upload className="w-3.5 h-3.5" />

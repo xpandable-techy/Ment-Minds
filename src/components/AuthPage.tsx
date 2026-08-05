@@ -4,8 +4,9 @@ import { supabase, storeManager, isSupabaseConfigured, generateUUID, uploadAvata
 import { compressImage } from '../lib/imageCompressor';
 import { UserProfile } from '../types';
 import { MentmindsLogo } from './MentmindsLogo';
+import Animate from './Animate';
 import {
-  ShieldAlert, CheckCircle2, Upload, Camera, ArrowRight, ArrowLeft, Mail,
+  ShieldAlert, CheckCircle2, Upload, Camera, ArrowRight, ArrowLeft, ArrowLeftCircle, Mail,
   Eye, EyeOff, Users, BookOpen, Award, Loader2,
 } from 'lucide-react';
 
@@ -520,6 +521,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onClose, onSuccessLogin }) =
                 )}
 
                 <form onSubmit={handleFormSubmit} className="space-y-4">
+                  <Animate variant="fade">
                   {/* LOGIN / FORGOT / SIGNUP SLIDE 1 */}
                   {(authMode === 'login' || authMode === 'forgot' || (authMode === 'signup' && signupSlide === 1)) && (
                     <>
@@ -625,7 +627,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onClose, onSuccessLogin }) =
                         <span className="text-xs font-medium text-slate-500 mb-2 block">Profile photo (required)</span>
                         <div className="flex items-center gap-4">
                           <div className={`w-16 h-16 rounded-full overflow-hidden border-2 flex items-center justify-center shrink-0 ${avatarPreview ? 'border-[#0B6291]' : 'border-dashed border-slate-300 bg-slate-50'}`}>
-                            {avatarPreview ? <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" /> : <Camera className="w-5 h-5 text-slate-400" />}
+                            {avatarPreview ? <img loading="lazy" src={avatarPreview} alt="Profile" className="w-full h-full object-cover" /> : <Camera className="w-5 h-5 text-slate-400" />}
                           </div>
                           <label className="cursor-pointer bg-white border border-slate-300 hover:border-[#0B6291] text-[#0C1836] font-medium text-xs px-3.5 py-2.5 rounded-lg flex items-center gap-1.5">
                             <Upload className="w-3.5 h-3.5" />
@@ -694,6 +696,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onClose, onSuccessLogin }) =
                       </button>
                     )}
                   </div>
+                  </Animate>
                 </form>
               </>
             )}

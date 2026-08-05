@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { MENTORSHIP_AREAS } from '../../constants/brand';
-import { storeManager, uploadAvatar, compressImage, isSupabaseConfigured } from '../../lib/supabase';
+import { storeManager, uploadAvatar, isSupabaseConfigured } from '../../lib/supabase';
+import { compressImage } from '../../lib/imageCompressor';
 import { MentorRequest, Session, UserProfile } from '../../types';
-import { User, Video, CheckCircle2, Plus, Send, Clock, BookOpen, MessageCircle, Award, Edit3, Camera, Upload, Loader2 } from 'lucide-react';
+import { User, Video, CheckCircle2, Plus, Send, Clock, BookOpen, MessageCircle, Award, Edit3, Camera, Upload, Loader2, Save } from 'lucide-react';
 
 interface MentorDashboardProps {
   currentUser: UserProfile;
@@ -404,11 +405,11 @@ export const MentorDashboard: React.FC<MentorDashboardProps> = ({
               </div>
 
               {profileSaved && (
-                <div className="p-3 bg-emerald-100 border border-emerald-400 rounded-xl text-xs text-emerald-900 font-bold flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Profile updated live across MENTMINDS!</span>
-                </div>
-              )}
+                          <div className="p-3 bg-emerald-100 border border-emerald-400 rounded-xl text-xs text-emerald-900 font-bold flex items-center gap-2 animate-success">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                            <span>Profile updated live across MENTMINDS!</span>
+                          </div>
+                        )}
 
               {!isEditingProfile ? (
                 /* READ-ONLY VIEW */
@@ -604,7 +605,7 @@ export const MentorDashboard: React.FC<MentorDashboardProps> = ({
                   {activeMentees.map((m) => (
                     <div key={m.id} className="p-4 bg-[#F8FAFC] border border-slate-200 rounded-xl flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <img src={m.menteeAvatar} alt={m.menteeName} className="w-10 h-10 rounded-full object-cover" />
+                        <img loading="lazy" src={m.menteeAvatar} alt={m.menteeName} className="w-10 h-10 rounded-full object-cover" />
                         <div>
                           <p className="font-bold text-xs text-[#0C1836]">{m.menteeName}</p>
                           <p className="text-[10px] text-slate-500">{m.menteeInterest}</p>

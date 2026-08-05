@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MENTORSHIP_AREAS } from '../../constants/brand';
 import { storeManager, supabase, isSupabaseConfigured, generateUUID } from '../../lib/supabase';
+import Animate from '../../components/Animate';
 import { compressImage } from '../../lib/imageCompressor';
 import { Flyer, MentorRequest, NewsArticle, Session, UserProfile } from '../../types';
 import { Shield, Users, CheckCircle2, XCircle, Send, Plus, Database, Newspaper, Image, Award, Clock, Upload, FileText } from 'lucide-react';
@@ -390,17 +391,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </p>
 
               {pendingAdminRequests.length === 0 ? (
-                <div className="p-8 text-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl">
+                <div className="p-8 text-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl animate-pop">
                   <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
                   <p className="text-sm font-black text-[#0C1836]">All pairing requests reviewed!</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {pendingAdminRequests.map((req) => (
-                    <div key={req.id} className="p-5 border-2 border-slate-900 rounded-2xl bg-[#F8FAFC] space-y-4 shadow-sm">
+                    <Animate key={req.id} variant="pop">
+                      <div className="p-5 border-2 border-slate-900 rounded-2xl bg-[#F8FAFC] space-y-4 shadow-sm">
                       <div className="flex items-center justify-between border-b pb-3">
                         <div className="flex items-center gap-3">
-                          <img src={req.menteeAvatar} alt={req.menteeName} className="w-10 h-10 rounded-full object-cover border-2 border-[#0B6291]" />
+                          <img loading="lazy" src={req.menteeAvatar} alt={req.menteeName} className="w-10 h-10 rounded-full object-cover border-2 border-[#0B6291]" />
                           <div>
                             <p className="font-black text-sm text-[#0C1836]">{req.menteeName}</p>
                             <p className="text-[10px] text-slate-500 font-bold">{req.menteeEmail}</p>
@@ -433,6 +435,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </button>
                       </div>
                     </div>
+                    </div>
+                    </Animate>
                   ))}
                 </div>
               )}
@@ -475,7 +479,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   {profiles.map((p) => (
                     <tr key={p.id}>
                       <td className="p-3 flex items-center gap-2">
-                        <img src={p.avatarUrl} alt={p.fullName} className="w-7 h-7 rounded-full object-cover" />
+                        <img loading="lazy" src={p.avatarUrl} alt={p.fullName} className="w-7 h-7 rounded-full object-cover" />
                         <div>
                           <p className="font-black text-slate-900 text-xs">{p.fullName}</p>
                           <p className="text-[10px] text-slate-500 font-bold">{p.email}</p>
@@ -524,9 +528,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {flyers.map((f) => (
-                  <div key={f.id} className="p-3.5 border-2 border-slate-900 rounded-xl bg-[#F8FAFC] flex items-center justify-between gap-3">
+                  <div key={f.id} className="p-3.5 border-2 border-slate-900 rounded-xl bg-[#F8FAFC] flex items-center justify-between gap-3 animate-fadeIn">
                     <div className="flex items-center gap-3 min-w-0">
-                      <img src={f.imageUrl} alt={f.title} className="w-14 h-14 rounded-lg object-cover border border-slate-300 shrink-0" />
+                      <img loading="lazy" src={f.imageUrl} alt={f.title} className="w-14 h-14 rounded-lg object-cover border border-slate-300 shrink-0" />
                       <div className="space-y-1 min-w-0">
                         <p className="font-black text-xs text-[#0C1836] truncate">{f.title}</p>
                         <p className="text-[10px] text-slate-600 font-bold truncate">Speaker: {f.speaker}</p>
@@ -568,9 +572,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {news.map((n) => (
-                  <div key={n.id} className="p-3.5 border-2 border-slate-900 rounded-xl bg-[#F8FAFC] flex items-center justify-between gap-3">
+                  <div key={n.id} className="p-3.5 border-2 border-slate-900 rounded-xl bg-[#F8FAFC] flex items-center justify-between gap-3 animate-fadeIn">
                     <div className="flex items-center gap-3 min-w-0">
-                      <img src={n.imageUrl} alt={n.title} className="w-14 h-14 rounded-lg object-cover border border-slate-300 shrink-0" />
+                      <img loading="lazy" src={n.imageUrl} alt={n.title} className="w-14 h-14 rounded-lg object-cover border border-slate-300 shrink-0" />
                       <div className="min-w-0">
                         <p className="font-black text-xs text-[#0C1836] truncate">{n.title}</p>
                         <p className="text-[10px] text-slate-500 font-bold">{n.date}</p>
@@ -704,7 +708,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 {flyerImg && (
                   <div className="flex items-center gap-3 p-2 bg-emerald-50 border border-emerald-300 rounded-xl">
-                    <img src={flyerImg} alt="Preview" className="w-12 h-12 rounded-lg object-cover border" />
+                    <img loading="lazy" src={flyerImg} alt="Preview" className="w-12 h-12 rounded-lg object-cover border" />
                     <span className="text-[10px] font-bold text-emerald-800">Compressed Poster Ready</span>
                   </div>
                 )}

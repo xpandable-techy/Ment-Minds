@@ -157,3 +157,33 @@
   animation: spinCounterClockwise 16s linear infinite !important;
 }
 
+/* Small, performance-friendly UI animations */
+@keyframes mm-fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: mm-fadeIn 220ms ease-out both;
+}
+
+@keyframes mm-pop {
+  0% { transform: scale(0.98); opacity: 0; }
+  60% { transform: scale(1.03); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pop {
+  animation: mm-pop 260ms cubic-bezier(.2,.9,.25,1) both;
+}
+
+@keyframes mm-success {
+  0% { transform: scale(0.985); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.animate-success {
+  animation: mm-success 420ms ease both;
+}
+
