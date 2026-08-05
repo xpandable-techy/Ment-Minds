@@ -400,42 +400,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   {pendingAdminRequests.map((req) => (
                     <Animate key={req.id} variant="pop">
                       <div className="p-5 border-2 border-slate-900 rounded-2xl bg-[#F8FAFC] space-y-4 shadow-sm">
-                      <div className="flex items-center justify-between border-b pb-3">
-                        <div className="flex items-center gap-3">
-                          <img loading="lazy" src={req.menteeAvatar} alt={req.menteeName} className="w-10 h-10 rounded-full object-cover border-2 border-[#0B6291]" />
-                          <div>
-                            <p className="font-black text-sm text-[#0C1836]">{req.menteeName}</p>
-                            <p className="text-[10px] text-slate-500 font-bold">{req.menteeEmail}</p>
+                        <div className="flex items-center justify-between border-b pb-3">
+                          <div className="flex items-center gap-3">
+                            <img loading="lazy" src={req.menteeAvatar} alt={req.menteeName} className="w-10 h-10 rounded-full object-cover border-2 border-[#0B6291]" />
+                            <div>
+                              <p className="font-black text-sm text-[#0C1836]">{req.menteeName}</p>
+                              <p className="text-[10px] text-slate-500 font-bold">{req.menteeEmail}</p>
+                            </div>
                           </div>
+                          <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase px-2.5 py-1 rounded-md">
+                            Awaiting Admin
+                          </span>
                         </div>
-                        <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase px-2.5 py-1 rounded-md">
-                          Awaiting Admin
-                        </span>
-                      </div>
 
-                      <div className="text-xs space-y-1">
-                        <p className="font-bold text-slate-700">Requested Mentor: <span className="text-[#0B6291] font-black">{req.mentorName}</span></p>
-                        <p className="font-bold text-slate-700">Interest Area: <span className="text-[#3D781D] font-black">{req.menteeInterest}</span></p>
-                        <p className="text-slate-600 bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-medium mt-2">"{req.menteeMessage}"</p>
-                      </div>
+                        <div className="text-xs space-y-1">
+                          <p className="font-bold text-slate-700">Requested Mentor: <span className="text-[#0B6291] font-black">{req.mentorName}</span></p>
+                          <p className="font-bold text-slate-700">Interest Area: <span className="text-[#3D781D] font-black">{req.menteeInterest}</span></p>
+                          <p className="text-slate-600 bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-medium mt-2">"{req.menteeMessage}"</p>
+                        </div>
 
-                      <div className="flex items-center gap-2 pt-2">
-                        <button
-                          onClick={() => onAdminApproveRequest(req.id)}
-                          className="flex-1 bg-[#3D781D] hover:bg-[#326317] text-white font-black text-xs uppercase py-2.5 rounded-xl shadow-md flex items-center justify-center gap-1.5"
-                        >
-                          <CheckCircle2 className="w-4 h-4" />
-                          <span>Approve & Route to Mentor</span>
-                        </button>
-                        <button
-                          onClick={() => onAdminRejectRequest(req.id)}
-                          className="bg-rose-100 hover:bg-rose-200 text-rose-900 font-black text-xs uppercase px-3 py-2.5 rounded-xl"
-                        >
-                          Reject
-                        </button>
+                        <div className="flex items-center gap-2 pt-2">
+                          <button
+                            onClick={() => onAdminApproveRequest(req.id)}
+                            className="flex-1 bg-[#3D781D] hover:bg-[#326317] text-white font-black text-xs uppercase py-2.5 rounded-xl shadow-md flex items-center justify-center gap-1.5"
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span>Approve & Route to Mentor</span>
+                          </button>
+                          <button
+                            onClick={() => onAdminRejectRequest(req.id)}
+                            className="bg-rose-100 hover:bg-rose-200 text-rose-900 font-black text-xs uppercase px-3 py-2.5 rounded-xl"
+                          >
+                            Reject
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    </div>
                     </Animate>
                   ))}
                 </div>
