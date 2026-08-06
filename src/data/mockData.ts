@@ -1,12 +1,155 @@
-import { Flyer, NewsArticle } from '../types';
+import { Flyer, NewsArticle, UserProfile } from '../types';
 
 /**
- * Real MentMinds content: webinar flyers and news/impact articles shown
- * on the public home page. These are genuine organizational content, not
- * placeholder data — unlike the mentor/team/admin mock records that used
- * to live in this file, which have been removed now that the platform is
- * live and mentors/admins are real Supabase accounts.
+ * Real MentMinds content: webinar flyers, impact articles, and local mentor
+ * profile seed data shown on the public home page. The mentor profiles here
+ * use the pictures stored in public/mentors and are used for local preview
+ * mode when Supabase is not yet configured.
  */
+export const INITIAL_MENTORS: UserProfile[] = [
+  {
+    id: 'salmabizi',
+    email: 'salmabizi@gmail.com',
+    fullName: 'Salma Bizi',
+    dateOfBirth: '1994-06-18',
+    phoneWhatsApp: '+2348012345678',
+    role: 'mentor',
+    status: 'Active Mentor',
+    interests: ['Public Speaking', 'Spoken Word'],
+    expertise: ['Public Speaking', 'Spoken Word', 'Youth Leadership'],
+    bio: 'Award-winning spoken word artist and coach empowering girls and young leaders through storytelling and confidence-building.',
+    avatarUrl: '/mentors/salma.jpg',
+    socialLinks: {
+      instagram: 'https://instagram.com/salma.bizi',
+      linkedin: 'https://linkedin.com/in/salmabizi',
+    },
+    createdAt: '2025-01-01T08:00:00.000Z',
+  },
+  {
+    id: 'abdulmalik',
+    email: 'abdulmalik.punsmith@gmail.com',
+    fullName: 'Abdulmalik Yahya',
+    dateOfBirth: '1992-12-15',
+    phoneWhatsApp: '+2348098765432',
+    role: 'mentor',
+    status: 'Active Mentor',
+    interests: ['Comedy', 'Writing'],
+    expertise: ['Public Speaking', 'Authorship', 'Creative Writing'],
+    bio: 'Renowned punsmith and storyteller teaching confident communication, humour, and authentic self-expression.',
+    avatarUrl: '/mentors/abdulmalik.jpg',
+    socialLinks: {
+      instagram: 'https://instagram.com/abdulmalik.punsmith',
+      linkedin: 'https://linkedin.com/in/abdulmalik',
+    },
+    createdAt: '2025-01-02T08:00:00.000Z',
+  },
+  {
+    id: 'idrisabba',
+    email: 'idrisabba846@gmail.com',
+    fullName: 'Abba Musa Idris',
+    dateOfBirth: '1990-09-22',
+    phoneWhatsApp: '+2348011122233',
+    role: 'mentor',
+    status: 'Active Mentor',
+    interests: ['Journalism', 'Media'],
+    expertise: ['Journalism', 'Media Literacy', 'Storytelling'],
+    bio: 'Media practitioner and youth journalism mentor helping young voices report with integrity and impact.',
+    avatarUrl: '/mentors/abba.jpg',
+    socialLinks: {
+      twitter: 'https://twitter.com/idris_abba',
+      linkedin: 'https://linkedin.com/in/idrisabba',
+    },
+    createdAt: '2025-01-03T08:00:00.000Z',
+  },
+  {
+    id: 'sajuda',
+    email: 'sajudamahmud@gmail.com',
+    fullName: 'Sajuda Mahmud',
+    dateOfBirth: '1995-03-11',
+    phoneWhatsApp: '+2348082233445',
+    role: 'mentor',
+    status: 'Active Mentor',
+    interests: ['Advocacy', 'Leadership'],
+    expertise: ['Advocacy', 'Campaign Strategy', 'Public Speaking'],
+    bio: 'Youth advocate mentoring young leaders on advocacy, civic engagement, and community storytelling.',
+    avatarUrl: '/mentors/sajuda.jpg',
+    socialLinks: {
+      instagram: 'https://instagram.com/sajuda.mah',
+      linkedin: 'https://linkedin.com/in/sajudamahmud',
+    },
+    createdAt: '2025-01-04T08:00:00.000Z',
+  },
+  {
+    id: 'sumayya',
+    email: 'sumayyaabdullahi1010@gmail.com',
+    fullName: 'Sumayya Abdullahi Hussaini',
+    dateOfBirth: '1993-11-05',
+    phoneWhatsApp: '+2348093344556',
+    role: 'mentor',
+    status: 'Active Mentor',
+    interests: ['Governance', 'Policy'],
+    expertise: ['Good Governance', 'Advocacy', 'Leadership'],
+    bio: 'Policy advocate guiding young changemakers through governance, civic literacy, and ethical leadership.',
+    avatarUrl: '/mentors/sumayya.jpg',
+    socialLinks: {
+      linkedin: 'https://linkedin.com/in/sumayyaabdullahi',
+    },
+    createdAt: '2025-01-05T08:00:00.000Z',
+  },
+  {
+    id: 'ameer',
+    email: 'saeedameer406@gmail.com',
+    fullName: 'Ameer Saeed',
+    dateOfBirth: '1991-07-20',
+    phoneWhatsApp: '+2348076655443',
+    role: 'mentor',
+    status: 'Active Mentor',
+    interests: ['Leadership', 'Communication'],
+    expertise: ['Public Speaking', 'Youth Leadership', 'Mentorship'],
+    bio: 'Youth leadership coach and mentor helping young people develop confidence, direction, and impact-driven communication.',
+    avatarUrl: '/mentors/ameer.jpg',
+    socialLinks: {
+      instagram: 'https://instagram.com/ameer.saeed',
+      linkedin: 'https://linkedin.com/in/ameersaeed',
+    },
+    createdAt: '2025-01-06T08:00:00.000Z',
+  },
+  {
+    id: 'hadiza',
+    email: 'shettimahadiza88@gmail.com',
+    fullName: 'Dr. Hadiza Shettima',
+    dateOfBirth: '1988-02-08',
+    phoneWhatsApp: '+2348035566778',
+    role: 'mentor',
+    status: 'Active Mentor',
+    interests: ['Sustainability', 'Agribusiness'],
+    expertise: ['Sustainability', 'Dairy Science', 'Career Guidance'],
+    bio: 'Sustainability expert and mentor supporting young women in agribusiness, science, and entrepreneurship.',
+    avatarUrl: '/mentors/hadiza.jpg',
+    socialLinks: {
+      linkedin: 'https://linkedin.com/in/hadiza-shettima',
+    },
+    createdAt: '2025-01-07T08:00:00.000Z',
+  },
+  {
+    id: 'shamsuddeen',
+    email: 'elshams9794@gmail.com',
+    fullName: 'Shamsuddeen Jibril',
+    dateOfBirth: '1987-04-18',
+    phoneWhatsApp: '+2348067788990',
+    role: 'mentor',
+    status: 'Active Mentor',
+    interests: ['Technology', 'Innovation'],
+    expertise: ['Robotics', 'Aerospace', 'Entrepreneurship'],
+    bio: 'Tech founder and mentor advising young innovators on robotics, aerospace, and building impact-driven startups.',
+    avatarUrl: '/mentors/shamsuddeen.jpg',
+    socialLinks: {
+      linkedin: 'https://linkedin.com/in/shamsuddeen',
+    },
+    createdAt: '2025-01-08T08:00:00.000Z',
+  },
+];
+
 export const INITIAL_FLYERS: Flyer[] = [
   {
     id: 'flyer-alamin',

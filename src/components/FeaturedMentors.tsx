@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { UserProfile } from '../types';
 import { CheckCircle2, User, Eye } from 'lucide-react';
 import { MentorProfileModal } from './MentorProfileModal';
@@ -18,8 +18,16 @@ export const FeaturedMentors: React.FC<FeaturedMentorsProps> = ({
   onOpenAuthModal,
 }) => {
   const [activeModalMentor, setActiveModalMentor] = useState<UserProfile | null>(null);
+  const [rotationStep, setRotationStep] = useState(0);
 
-  // Rotate a batch of 4 featured mentors every 1 hour (4 mentors/hr)
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setRotationStep((prev) => prev + 1);
+    }, 10000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  // Rotate a batch of 4 featured mentors every 10 seconds.
   const displayedMentors = useMemo(() => {
     if (!mentors || mentors.length === 0) return [];
 
@@ -34,15 +42,14 @@ export const FeaturedMentors: React.FC<FeaturedMentorsProps> = ({
     }
 
     const ordered = [...uniqueMentors].sort((a, b) => (a.id || '').localeCompare(b.id || ''));
-    const hourIndex = Math.floor(Date.now() / (1000 * 60 * 60)); // Rotates every 1 hour
-    const start = (hourIndex * BATCH_SIZE) % ordered.length;
+    const start = (rotationStep * BATCH_SIZE) % ordered.length;
 
     const slice: UserProfile[] = [];
     for (let i = 0; i < BATCH_SIZE; i++) {
       slice.push(ordered[(start + i) % ordered.length]);
     }
     return slice;
-  }, [mentors]);
+  }, [mentors, rotationStep]);
 
   return (
     <section id="mentors" className="py-20 bg-white text-[#0C1836] border-b-4 border-slate-200">
@@ -54,14 +61,14 @@ export const FeaturedMentors: React.FC<FeaturedMentorsProps> = ({
             <div className="flex items-center gap-2 mb-2">
               <div className="w-6 h-1 bg-[#B87E13]"></div>
               <h4 className="text-xs font-black uppercase tracking-widest text-[#B87E13]">
-                Hourly Mentor Spotlight (4 Mentors / Hour)
+                Rotating Mentor Spotlight (4 Mentors / 10 seconds)
               </h4>
             </div>
             <h2 className="text-3xl sm:text-5xl font-black font-['Outfit'] text-[#0C1836] tracking-tight mt-1">
               Featured Youth Mentors
             </h2>
             <p className="text-slate-600 text-sm sm:text-base mt-2 font-medium max-w-2xl">
-              A new group of 4 featured mentors rotated every hour across Africa. Click a profile to view their full portfolio.
+              Next four after 10 secs.
             </p>
           </div>
         </div>

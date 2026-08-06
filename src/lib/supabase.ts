@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { createClient } from '@supabase/supabase-js';
-import { INITIAL_FLYERS, INITIAL_NEWS } from '../data/mockData';
+import { INITIAL_FLYERS, INITIAL_NEWS, INITIAL_MENTORS } from '../data/mockData';
 import { Flyer, MentorRequest, NewsArticle, Session, UserProfile } from '../types';
 
 // Environment variables for Supabase
@@ -151,7 +151,7 @@ const STORAGE_KEYS = {
  */
 export function initLocalDatabase() {
   if (!localStorage.getItem(STORAGE_KEYS.ALL_PROFILES)) {
-    localStorage.setItem(STORAGE_KEYS.ALL_PROFILES, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.ALL_PROFILES, JSON.stringify(INITIAL_MENTORS));
   }
   if (!localStorage.getItem(STORAGE_KEYS.FLYERS)) {
     localStorage.setItem(STORAGE_KEYS.FLYERS, JSON.stringify(INITIAL_FLYERS));
