@@ -23,6 +23,7 @@ import { SupabaseSqlModal } from './components/SupabaseSqlModal';
 import { MenteeDashboard } from './components/dashboards/MenteeDashboard';
 import { MentorDashboard } from './components/dashboards/MentorDashboard';
 import { AdminDashboard } from './components/dashboards/AdminDashboard';
+import { User } from 'lucide-react';
 
 import { initLocalDatabase, storeManager, authHelpers, isSupabaseConfigured, generateUUID } from './lib/supabase';
 import { Flyer, MentorRequest, NewsArticle, Session, UserProfile } from './types';
