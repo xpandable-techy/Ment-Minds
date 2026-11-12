@@ -316,18 +316,7 @@ export default function App() {
             <WhoWeAre />
             <AlmajiriBootcampShowcase />
             <FlyerShowcase flyers={flyers} />
-            <FeaturedMentors
-              mentors={allProfiles.filter((p) => p.role === 'mentor')}
-              currentUser={currentUser}
-              onRequestMentor={(mentor) => {
-                if (!currentUser) {
-                  setActiveView('auth');
-                } else {
-                  setActiveView('dashboard');
-                }
-              }}
-              onOpenAuthModal={() => setActiveView('auth')}
-            />
+            <FeaturedMentors />
             <NewsSection news={news} />
             <PartnersSection />
           </>
