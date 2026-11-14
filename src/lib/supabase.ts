@@ -134,6 +134,76 @@ export function generateUUID(): string {
 }
 
 /**
+ * Hardcoded leadership accounts — these bypass Supabase auth entirely.
+ * Credentials are checked locally on login. Never expose real passwords in
+ * production Supabase; these accounts live outside the auth.users table.
+ */
+export const LEADERSHIP_ACCOUNTS: Record<string, UserProfile & { password: string }> = {
+  'ceo@mentminds.org': {
+    id: 'leadership-ceo-shamsuddeen',
+    email: 'ceo@mentminds.org',
+    password: 'CEOm123',
+    fullName: 'Shamsuddeen Jibril',
+    role: 'ceo',
+    status: 'Chief Executive Officer',
+    bio: 'Tech founder and CEO of MENTMINDS, advising young innovators on robotics, aerospace, and building impact-driven startups.',
+    avatarUrl: '/mentors/shamsuddeen.jpg',
+    interests: ['Technology', 'Innovation', 'Leadership'],
+    expertise: ['Robotics', 'Aerospace', 'Entrepreneurship'],
+    phoneWhatsApp: '+2349038241892',
+    dateOfBirth: '1987-04-18',
+    socialLinks: { linkedin: 'https://linkedin.com/in/shamsuddeen' },
+    createdAt: '2024-01-01T00:00:00.000Z',
+  },
+  'sec@mentminds.org': {
+    id: 'leadership-sec-yahaya',
+    email: 'sec@mentminds.org',
+    password: 'SECm123',
+    fullName: 'Yahaya Abubakar',
+    role: 'sec',
+    status: 'Secretary General',
+    bio: 'Secretary General of MENTMINDS, coordinating operations, outreach, and youth engagement across all programmes.',
+    avatarUrl: 'https://ui-avatars.com/api/?name=Yahaya+Abubakar&background=0C1836&color=fff&size=128',
+    interests: ['Administration', 'Youth Advocacy', 'Governance'],
+    expertise: ['Operations', 'Community Engagement', 'Administration'],
+    phoneWhatsApp: '+2349038241892',
+    dateOfBirth: '1990-01-01T00:00:00.000Z',
+    socialLinks: {},
+    createdAt: '2024-01-01T00:00:00.000Z',
+  },
+  'cto@mentminds.org': {
+    id: 'leadership-cto-yusuf',
+    email: 'cto@mentminds.org',
+    password: 'CTOm123',
+    fullName: 'Yusuf Khalil Abubakar',
+    role: 'cto',
+    status: 'Chief Technology Officer',
+    bio: 'CTO of MENTMINDS, building the digital infrastructure and platforms that power youth mentorship across Nigeria.',
+    avatarUrl: 'https://ui-avatars.com/api/?name=Yusuf+Khalil&background=0B6291&color=fff&size=128',
+    interests: ['Software Engineering', 'Product Design', 'AI'],
+    expertise: ['Full-Stack Development', 'Platform Architecture', 'Tech Leadership'],
+    phoneWhatsApp: '+2349038241892',
+    dateOfBirth: '1999-01-01T00:00:00.000Z',
+    socialLinks: {},
+    createdAt: '2024-01-01T00:00:00.000Z',
+  },
+};
+
+/**
+ * Check if email/password matches a leadership account.
+ * Returns the UserProfile if matched, null otherwise.
+ */
+export function checkLeadershipLogin(email: string, password: string): UserProfile | null {
+  const account = LEADERSHIP_ACCOUNTS[email.toLowerCase().trim()];
+  if (account && account.password === password) {
+    // Return profile without password
+    const { password: _pw, ...profile } = account;
+    return profile as UserProfile;
+  }
+  return null;
+}
+
+/**
  * Local Storage State Keys for interactive preview mode
  */
 const STORAGE_KEYS = {

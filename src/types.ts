@@ -2,7 +2,7 @@
  * MENTMINDS Platform Type Definitions
  */
 
-export type UserRole = 'mentee' | 'mentor' | 'admin';
+export type UserRole = 'mentee' | 'mentor' | 'admin' | 'ceo' | 'cto' | 'sec';
 
 export type MenteeStatus = 'Fresh Mentee' | 'Active Mentee' | 'Alumni';
 
