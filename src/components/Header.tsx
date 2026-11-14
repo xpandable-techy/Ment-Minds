@@ -72,13 +72,17 @@ export const Header: React.FC<HeaderProps> = ({
             Get Involved
           </button>
           <a
-            href="mailto:mentminds@gmail.com?subject=Donation%20Inquiry%20-%20MENTMINDS"
+            href="https://wa.me/2349038241892?text=Hello%20MENTMINDS%20Team!%20%F0%9F%A4%9D%0A%0AI%20would%20like%20to%20make%20a%20donation%20to%20support%20the%20MENTMINDS%20Youth%20Mentorship%20Initiative%20(RC8946867).%0A%0APlease%20let%20me%20know%20how%20I%20can%20contribute%20to%20empowering%20youth%20and%20Almajiri%20children.%0A%0AThank%20you!"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-emerald-400 hover:text-emerald-300 font-black transition-colors"
           >
             Donate Now
           </a>
           <a
-            href="mailto:mentminds@gmail.com?subject=Partnership%20Inquiry%20-%20MENTMINDS"
+            href="https://wa.me/2349038241892?text=Hello%20MENTMINDS%20Team!%20%F0%9F%8C%9F%0A%0AI%20am%20interested%20in%20partnering%20with%20MENTMINDS%20(RC8946867)%20to%20support%20youth%20empowerment%20and%20mentorship%20initiatives%20in%20Nigeria.%0A%0AKindly%20share%20more%20details%20on%20how%20we%20can%20collaborate.%0A%0AThank%20you!"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-amber-400 hover:text-amber-300 font-black transition-colors"
           >
             Partner With Us
@@ -189,13 +193,17 @@ export const Header: React.FC<HeaderProps> = ({
             Get Involved
           </button>
           <a
-            href="mailto:mentminds@gmail.com?subject=Donation%20Inquiry%20-%20MENTMINDS"
+            href="https://wa.me/2349038241892?text=Hello%20MENTMINDS%20Team!%20%F0%9F%A4%9D%0A%0AI%20would%20like%20to%20make%20a%20donation%20to%20support%20the%20MENTMINDS%20Youth%20Mentorship%20Initiative%20(RC8946867).%0A%0APlease%20let%20me%20know%20how%20I%20can%20contribute%20to%20empowering%20youth%20and%20Almajiri%20children.%0A%0AThank%20you!"
+            target="_blank"
+            rel="noopener noreferrer"
             className="block w-full text-left text-xs font-black uppercase tracking-wider text-emerald-400 py-2 border-b border-slate-800"
           >
             Donate Now
           </a>
           <a
-            href="mailto:mentminds@gmail.com?subject=Partnership%20Inquiry%20-%20MENTMINDS"
+            href="https://wa.me/2349038241892?text=Hello%20MENTMINDS%20Team!%20%F0%9F%8C%9F%0A%0AI%20am%20interested%20in%20partnering%20with%20MENTMINDS%20(RC8946867)%20to%20support%20youth%20empowerment%20and%20mentorship%20initiatives%20in%20Nigeria.%0A%0AKindly%20share%20more%20details%20on%20how%20we%20can%20collaborate.%0A%0AThank%20you!"
+            target="_blank"
+            rel="noopener noreferrer"
             className="block w-full text-left text-xs font-black uppercase tracking-wider text-amber-400 py-2 border-b border-slate-800"
           >
             Partner With Us
