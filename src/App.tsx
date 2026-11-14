@@ -23,6 +23,7 @@ import { SupabaseSqlModal } from './components/SupabaseSqlModal';
 import { MenteeDashboard } from './components/dashboards/MenteeDashboard';
 import { MentorDashboard } from './components/dashboards/MentorDashboard';
 import { AdminDashboard } from './components/dashboards/AdminDashboard';
+import { LeadershipDashboard } from './components/dashboards/LeadershipDashboard';
 import { User } from 'lucide-react';
 
 import { initLocalDatabase, storeManager, authHelpers, isSupabaseConfigured, generateUUID } from './lib/supabase';
@@ -95,16 +96,26 @@ export default function App() {
       const localUser = storeManager.getCurrentUser();
       if (localUser) {
         setCurrentUser(localUser);
+        if (['ceo', 'cto', 'sec'].includes(localUser.role)) {
+          setActiveView('dashboard');
+        }
       }
       setAuthLoading(false);
       return;
     }
 
     (async () => {
+      const cached = storeManager.getCurrentUser();
+      if (cached && ['ceo', 'cto', 'sec'].includes(cached.role)) {
+        setCurrentUser(cached);
+        setActiveView('dashboard');
+        setAuthLoading(false);
+        return;
+      }
+
       const session = await authHelpers.getSession();
       if (session?.user) {
         const profile = await authHelpers.fetchProfile(session.user.id);
-        const cached = storeManager.getCurrentUser();
         const userToSet: UserProfile = profile || cached || {
           id: session.user.id,
           email: session.user.email || '',
@@ -345,7 +356,7 @@ export default function App() {
 
             return (
               <>
-                {(userRole === 'mentee' || (!['mentor', 'admin'].includes(userRole))) && (
+                {userRole === 'mentee' && (
                   <MenteeDashboard
                     currentUser={user}
                     mentors={allProfiles.filter((p) => p.role === 'mentor')}
@@ -381,15 +392,21 @@ export default function App() {
                     onOpenSqlModal={() => setIsSqlModalOpen(true)}
                   />
                 )}
+
+                {['ceo', 'cto', 'sec'].includes(userRole) && (
+                  <LeadershipDashboard
+                    currentUser={user}
+                    profiles={allProfiles}
+                    onVisitHome={() => handleNavigate('hero')}
+                  />
+                )}
               </>
             );
           })()
         )}
       </main>
 
-      {/* GLOBAL FOOTER — admin entrance now just opens the same real sign-in;
-          whether the account lands on the admin dashboard is decided by its
-          `role` in the database, never by a password shipped in the bundle. */}
+      {/* Admin access is determined by the signed-in profile role in Supabase. */}
       <Footer
         onOpenAdminAuthModal={() => setActiveView('auth')}
         onNavigate={handleNavigate}
