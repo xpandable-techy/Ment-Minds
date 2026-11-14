@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Clock, ExternalLink, GraduationCap, Home, MessageCircle, ShieldCheck, Users } from 'lucide-react';
+import { Clock, ExternalLink, GraduationCap, Home, Mail, MessageCircle, Phone, Search, ShieldCheck, Users } from 'lucide-react';
 import { MENTMINDS_BRAND } from '../../constants/brand';
+import { INITIAL_MENTORS } from '../../data/mockData';
 import { UserProfile } from '../../types';
 
 interface LeadershipDashboardProps {
@@ -42,13 +43,27 @@ export const LeadershipDashboard: React.FC<LeadershipDashboardProps> = ({
   onVisitHome,
 }) => {
   const [now, setNow] = useState(() => new Date());
+  const [mentorSearch, setMentorSearch] = useState('');
   const details = currentUser.role === 'ceo'
     ? roleDetails.ceo
     : currentUser.role === 'sec'
       ? roleDetails.sec
       : roleDetails.cto;
+  const mentorsByEmail = new Map(INITIAL_MENTORS.map((mentor) => [mentor.email.toLowerCase(), mentor]));
+  profiles
+    .filter((profile) => profile.role === 'mentor')
+    .forEach((profile) => mentorsByEmail.set(profile.email.toLowerCase(), profile));
+  const mentors = Array.from(mentorsByEmail.values());
   const menteeCount = profiles.filter((profile) => profile.role === 'mentee').length;
-  const mentorCount = profiles.filter((profile) => profile.role === 'mentor').length;
+  const mentorCount = mentors.length;
+  const normalizedSearch = mentorSearch.trim().toLowerCase();
+  const visibleMentors = mentors.filter((mentor) => [
+    mentor.fullName,
+    mentor.email,
+    mentor.bio,
+    ...(mentor.interests || []),
+    ...(mentor.expertise || []),
+  ].some((value) => value?.toLowerCase().includes(normalizedSearch)));
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
@@ -172,6 +187,128 @@ export const LeadershipDashboard: React.FC<LeadershipDashboardProps> = ({
             <p className="text-xs text-blue-100 mt-2">Africa/Lagos</p>
           </section>
         </div>
+
+        <section className="mt-8">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-5">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#3D781D]">Leadership Directory</p>
+              <h2 className="text-2xl sm:text-3xl font-black font-['Outfit'] mt-1">Mentor Profiles</h2>
+              <p className="text-sm text-slate-600 mt-1">Full profiles and direct contact details for the MENTMINDS mentors.</p>
+            </div>
+            <label className="relative block w-full sm:max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="search"
+                value={mentorSearch}
+                onChange={(event) => setMentorSearch(event.target.value)}
+                placeholder="Search name, expertise, or interest"
+                className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm outline-none focus:border-[#0B6291] focus:ring-2 focus:ring-[#0B6291]/15"
+              />
+            </label>
+          </div>
+
+          {visibleMentors.length > 0 ? (
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {visibleMentors.map((mentor) => {
+                const whatsappNumber = mentor.phoneWhatsApp?.replace(/\D/g, '');
+                const socialLinks = Object.entries(mentor.socialLinks || {}).filter(([, url]) => Boolean(url));
+
+                return (
+                  <article key={mentor.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                    <div className="p-5">
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={mentor.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(mentor.fullName)}&background=0B6291&color=fff`}
+                          alt={`${mentor.fullName} profile`}
+                          className="w-16 h-16 rounded-xl object-cover bg-slate-100"
+                        />
+                        <div className="min-w-0">
+                          <h3 className="text-lg font-black font-['Outfit'] truncate">{mentor.fullName}</h3>
+                          <p className="text-xs font-bold text-[#3D781D]">{mentor.status || 'Mentor'}</p>
+                          <a href={`mailto:${mentor.email}`} className="text-xs text-[#0B6291] hover:underline break-all">
+                            {mentor.email}
+                          </a>
+                        </div>
+                      </div>
+
+                      <p className="text-sm leading-relaxed text-slate-600 mt-4">{mentor.bio || 'MENTMINDS mentor.'}</p>
+
+                      {mentor.expertise && mentor.expertise.length > 0 && (
+                        <div className="mt-4">
+                          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">Expertise</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {mentor.expertise.map((item) => (
+                              <span key={item} className="rounded-full bg-blue-50 text-[#0B6291] px-2.5 py-1 text-[11px] font-bold">
+                                {item}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {mentor.interests.length > 0 && (
+                        <div className="mt-4">
+                          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">Mentorship Interests</p>
+                          <p className="text-xs text-slate-600">{mentor.interests.join(' · ')}</p>
+                        </div>
+                      )}
+
+                      {mentor.coursesTaught && mentor.coursesTaught.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1">Courses</p>
+                          <p className="text-xs text-slate-600">{mentor.coursesTaught.join(' · ')}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 bg-slate-50 p-4">
+                      <a
+                        href={`mailto:${mentor.email}`}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#0B6291] px-3 py-2 text-xs font-black text-white hover:bg-[#084b6f]"
+                      >
+                        <Mail className="w-3.5 h-3.5" /> Email
+                      </a>
+                      {mentor.phoneWhatsApp && (
+                        <>
+                          <a
+                            href={`https://wa.me/${whatsappNumber}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-3 py-2 text-xs font-black text-[#0C1836] hover:bg-[#20ba5a]"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+                          </a>
+                          <a
+                            href={`tel:${mentor.phoneWhatsApp}`}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-black text-slate-700 hover:bg-white"
+                          >
+                            <Phone className="w-3.5 h-3.5" /> {mentor.phoneWhatsApp}
+                          </a>
+                        </>
+                      )}
+                      {socialLinks.map(([platform, url]) => (
+                        <a
+                          key={platform}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`${mentor.fullName} on ${platform}`}
+                          className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold capitalize text-slate-700 hover:bg-white"
+                        >
+                          {platform} <ExternalLink className="w-3 h-3" />
+                        </a>
+                      ))}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+              No mentors match “{mentorSearch}”.
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

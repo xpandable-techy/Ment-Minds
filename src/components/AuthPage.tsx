@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MENTMINDS_BRAND, MENTORSHIP_AREAS } from '../constants/brand';
-import { supabase, storeManager, isSupabaseConfigured, generateUUID, uploadAvatar, authHelpers, checkLeadershipLogin, LEADERSHIP_ACCOUNTS } from '../lib/supabase';
+import { supabase, storeManager, isSupabaseConfigured, generateUUID, uploadAvatar, authHelpers } from '../lib/supabase';
 import { compressImage } from '../lib/imageCompressor';
 import { UserProfile } from '../types';
 import { MentmindsLogo } from './MentmindsLogo';
@@ -148,14 +148,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onClose, onSuccessLogin }) =
           return;
         }
 
-        const leadershipUser = checkLeadershipLogin(cleanEmail, cleanPassword);
-        if (leadershipUser) {
-          storeManager.setCurrentUser(leadershipUser);
-          onSuccessLogin(leadershipUser, false);
-          setLoading(false);
-          return;
-        }
-
         if (isSupabaseConfigured && supabase) {
           const { data, error } = await supabase.auth.signInWithPassword({
             email: cleanEmail,
@@ -195,8 +187,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onClose, onSuccessLogin }) =
         }
 
         // Local preview fallback (no Supabase configured)
-        if (Object.prototype.hasOwnProperty.call(LEADERSHIP_ACCOUNTS, cleanEmail)) {
-          setErrorMsg('Incorrect email or password.');
+        if (/^(ceo|sec|cto)@mentminds\.org$/.test(cleanEmail)) {
+          setErrorMsg('Leadership accounts require Supabase authentication. Configure the Supabase project before signing in.');
           setLoading(false);
           return;
         }
